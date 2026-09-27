@@ -9,6 +9,9 @@ Modbus Terminal is a Modbus master for Android: it reads and writes registers an
 You can download it from Google Play here:
 * [Modbus Terminal](https://play.google.com/store/apps/details?id=com.edodm85.modbusterminal)
 
+&nbsp;
+&nbsp;
+
 
 ## Features
 
@@ -23,10 +26,16 @@ You can download it from Google Play here:
 - Light and dark theme, English and Italian
 - No ads: cyclic send (polling every 100–2000 ms) is an optional one-time in-app purchase
 
+&nbsp;
+&nbsp;
+
+
 ## Supported USB-serial adapters
 
 FTDI, Prolific PL2303, CH340/CH341 and USB CDC-ACM devices. Baud rate from 1200 to 921600, 7/8 data bits, parity None/Odd/Even/Mark/Space, 1/1.5/2 stop bits.
 
+&nbsp;
+&nbsp;
 
 
 ## How does it work?
@@ -52,6 +61,51 @@ FTDI, Prolific PL2303, CH340/CH341 and USB CDC-ACM devices. Baud rate from 1200 
 <img src="Resources/screen4.png" width="300">
 </p>
 
+&nbsp;
+&nbsp;
+
+
+## Hardware for Modbus RTU
+
+Android phones have no serial port, so Modbus RTU needs a USB-serial adapter connected through USB OTG (with a USB-C adapter or OTG cable if the phone has a different connector). Choose the adapter according to the electrical interface of the slave:
+
+- **RS-485** (most PLCs, inverters and energy meters): a USB to RS-485 adapter, wired A/B (D+/D-) and GND.
+- **RS-232**: a USB to RS-232 adapter (DB9).
+- **TTL / UART** (microcontrollers, Arduino, ESP32, development boards): a USB to TTL adapter, for example the [Waveshare FT232 USB-C to TTL](https://www.amazon.it/dp/B09F3196FB). Cross TX/RX and share GND, and check that the voltage (3.3 V or 5 V) matches the board.
+
+TTL levels are not RS-232 levels: never connect a TTL adapter directly to an RS-232 port.
+
+&nbsp;
+&nbsp;
+
+
+
+## Testing without a real device
+
+You can try the app with [ModbusTools](https://github.com/serhmarch/ModbusTools), a free and open-source Modbus simulator for Windows and Linux (tested with version 0.5.0). Its `mbserver` acts as a Modbus slave:
+
+1. Download the release for your system and start `mbserver`.
+2. Create a TCP port (default port 502) and a device with the unit ID you want to use, then press the green *Run* button: the server does not start until you do.
+3. Connect the phone to the same Wi-Fi network as the PC, enter the PC IP address and port in *TCP Settings* and press CONNECT.
+
+Tips:
+- The port has an idle *Timeout* (3000 ms by default) after which mbserver closes connections with no traffic. Raise it in the port settings (with the server stopped) if the connection drops while you are not sending requests.
+- Allow `mbserver` through the Windows firewall, otherwise the phone cannot reach it.
+- For Modbus RTU, create an RTU port on the COM port of a second USB-serial adapter connected to the PC and use the same serial parameters (baud rate, data bits, parity, stop bits) on both sides:
+
+```
+ Android phone          adapter 1                 adapter 2          PC
++-----------+  OTG   +-----------+             +-----------+  USB  +-----------+
+|  Modbus   |========|        TX |-------------| RX        |=======| mbserver  |
+|  Terminal |        |        RX |-------------| TX        |       | RTU port  |
+|           |        |       GND |-------------| GND       |       | on COMx   |
++-----------+        +-----------+             +-----------+       +-----------+
+```
+
+With two RS-485 adapters connect A to A, B to B and GND to GND instead.
+
+&nbsp;
+&nbsp;
 
 
 ## Payload format
